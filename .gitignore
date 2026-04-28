@@ -1,0 +1,39 @@
+# Real environment files
+.env
+*.env
+!*.env.example
+
+# Claude Code runtime
+.claude.json
+.update.lock
+history.jsonl
+sessions/
+session-env/
+shell-snapshots/
+file-history/
+paste-cache/
+plans/
+tasks/
+projects/
+backups/
+cache/
+plugins/
+
+# Dependencies / caches
+node_modules/
+venv/
+__pycache__/
+*.pyc
+
+# Logs and local data
+*.log
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets / keys
+*.pem
+*.key
+id_rsa
+id_ed25519
+known_hosts

@@ -1,0 +1,50 @@
+#!/bin/bash
+# Switch bot services by writing systemd drop-in EnvironmentFile entries.
+# Usage: sudo ccs-all <preset-name>
+
+set -euo pipefail
+
+PRESET="${1:-}"
+PRESETS_DIR="${CLAUDE_PRESETS_DIR:-/opt/claude-presets}"
+ENV_FILE="$PRESETS_DIR/bot-presets/$PRESET.env"
+
+# Customize these service names for your own deployment.
+SERVICES=(
+  "your-telegram-bot.service"
+  "your-qq-bot.service"
+)
+
+if [ -z "$PRESET" ]; then
+  echo "Usage: sudo ccs-all <preset-name>" >&2
+  exit 1
+fi
+
+if [ ! -f "$ENV_FILE" ]; then
+  echo "Env file not found: $ENV_FILE" >&2
+  exit 1
+fi
+
+for svc in "${SERVICES[@]}"; do
+  dir="/etc/systemd/system/$svc.d"
+  mkdir -p "$dir"
+  cat > "$dir/preset.conf" <<EOF
+[Service]
+EnvironmentFile=
+EnvironmentFile=$ENV_FILE
+EOF
+  echo "Updated $svc -> $ENV_FILE"
+done
+
+systemctl daemon-reload
+
+for svc in "${SERVICES[@]}"; do
+  echo "Restarting $svc ..."
+  systemctl restart "$svc"
+done
+
+for svc in "${SERVICES[@]}"; do
+  status=$(systemctl is-active "$svc" || true)
+  echo "$svc: $status"
+done
+
+echo "Bot services switched to preset: $PRESET"

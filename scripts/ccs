@@ -1,0 +1,27 @@
+#!/bin/bash
+# Switch Claude Code CLI preset by replacing ~/.claude with one preset directory.
+# Usage: ccs <preset-name>
+
+set -euo pipefail
+
+PRESET="${1:-}"
+PRESETS_DIR="${CLAUDE_PRESETS_DIR:-$HOME/claude-presets/cli-presets}"
+TARGET="$HOME/.claude"
+
+if [ -z "$PRESET" ]; then
+  echo "Usage: ccs <preset-name>" >&2
+  exit 1
+fi
+
+if [ ! -d "$PRESETS_DIR/$PRESET" ]; then
+  echo "Preset not found: $PRESETS_DIR/$PRESET" >&2
+  exit 1
+fi
+
+if [ -e "$TARGET" ] && [ ! -L "$TARGET" ]; then
+  echo "$TARGET exists and is not a symlink. Move it manually before switching." >&2
+  exit 1
+fi
+
+ln -sfn "$PRESETS_DIR/$PRESET" "$TARGET"
+echo "Claude Code preset switched to: $PRESET"
